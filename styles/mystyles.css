@@ -1,0 +1,60 @@
+body{
+    display: grid;
+    height: 100vh;
+    place-items: center;
+    background-color: black;
+    color: azure;
+}
+
+.bird{
+    color: whitesmoke;
+    font-size: x-large;
+    font-weight: 300;
+}
+.bird li{
+    padding: 10px 0;
+}
+.nest{
+    color: aqua;
+    font-size: large;
+    word-spacing: normal !important;
+}
+.nest li{
+    padding: 0;
+}
+.imgbox{
+    padding: 50px;
+    background-color: gray;
+    color: antiquewhite;
+    border: 5px solid blueviolet;
+    margin: 25px;
+}
+.imgbox a{
+    color: brown;
+}
+h1{
+    font-size: 100px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: aquamarine;
+}
+h2{
+    font-size: 60px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color: violet;
+}
+p{
+    font-size: large;
+    font-family: 'Courier New', Courier, monospace;
+}
+a{
+    color:bisque;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif !important;
+    font-size: medium !important;
+    letter-spacing: 1px;
+}
+a:hover{
+    color: red;
+}
+.inline{
+    display: flex !important;
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marble Racing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2C3E50;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+            margin-bottom: 20px;
+        }
+        .team {
+            font-size: 24px;
+        }
+        .game-container {
+            width: 600px;
+            height: 200px;
+            background-color: #34495E;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .marble {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px;
+        }
+        .white-marble {
+            background-color: white;
+        }
+        .pink-marble {
+            background-color: pink;
+        }
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background-color: yellow;
+        }
+        .game-over {
+            display: none;
+            text-align: center;
+        }
+        .game-over h2 {
+            font-size: 36px;
+        }
+        .play-again {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #27AE60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <div class="team">
+            Hazers: <span id="hazer-wins">0</span> Wins
+        </div>
+        <div class="team">
+            Pinkies: <span id="pinkie-wins">0</span> Wins
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="white-marble" class="marble white-marble"></div>
+        <div id="pink-marble" class="marble pink-marble"></div>
+        <div class="finish-line"></div>
+    </div>
+
+    <div class="game-over" id="game-over">
+        <h2 id="game-result"></h2>
+        <button class="play-again" onclick="playAgain()">Play Again</button>
+    </div>
+
+    <script>
+        const whiteMarble = document.getElementById('white-marble');
+        const pinkMarble = document.getElementById('pink-marble');
+        const finishLine = document.querySelector('.finish-line');
+        const gameOverDisplay = document.getElementById('game-over');
+        const gameResult = document.getElementById('game-result');
+        const hazerWinsDisplay = document.getElementById('hazer-wins');
+        const pinkieWinsDisplay = document.getElementById('pinkie-wins');
+        
+        let whiteMarblePosition = 0; // Position along the track (0% to 100%)
+        let pinkMarblePosition = 0; // Position along the track (0% to 100%)
+        let isGameOver = false;
+
+        let hazerWins = 0;
+        let pinkieWins = 0;
+
+        // Move the white marble using arrow keys
+        function moveWhiteMarble(e) {
+            if (isGameOver) return;
+
+            const step = 2; // Distance to move per key press
+
+            if (e.key === 'ArrowLeft' && whiteMarblePosition > 0) {
+                whiteMarblePosition -= step;
+            } else if (e.key === 'ArrowRight' && whiteMarblePosition < 100) {
+                whiteMarblePosition += step;
+            }
+
+            whiteMarble.style.left = `${whiteMarblePosition}%`;
+
+            checkWinner();
+        }
+
+        // Simulate the pink marble's movement (slower)
+        function movePinkMarble() {
+            if (isGameOver) return;
+
+            const step = 0.5 + Math.random() * 1.5; // Slower random speed for pink marble
+
+            pinkMarblePosition += step;
+            pinkMarble.style.left = `${pinkMarblePosition}%`;
+
+            checkWinner();
+        }
+
+        // Check if anyone has crossed the finish line
+        function checkWinner() {
+            if (whiteMarblePosition >= 100) {
+                isGameOver = true;
+                gameResult.textContent = "You Win!";
+                hazerWins += 1;
+                hazerWinsDisplay.textContent = hazerWins;
+                gameOverDisplay.style.display = 'block';
+            } else if (pinkMarblePosition >= 100) {
+                isGameOver = true;
+                gameResult.textContent = "You Lose!";
+                pinkieWins += 1;
+                pinkieWinsDisplay.textContent = pinkieWins;
+                gameOverDisplay.style.display = 'block';
+            }
+        }
+
+        // Listen for arrow key presses to move the white marble
+        window.addEventListener('keydown', moveWhiteMarble);
+
+        // Move the pink marble every 100ms
+        setInterval(movePinkMarble, 100);
+
+        // Reset the game when the player clicks "Play Again"
+        function playAgain() {
+            isGameOver = false;
+            whiteMarblePosition = 0;
+            pinkMarblePosition = 0;
+            whiteMarble.style.left = '0%';
+            pinkMarble.style.left = '0%';
+            gameOverDisplay.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

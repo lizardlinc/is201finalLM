@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2C3E50;
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+        .game-container {
+            margin-top: 20px;
+        }
+        .hand {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: white;
+            border-radius: 8px;
+            border: 2px solid #333;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            transform: translateY(0);
+            transition: transform 3s ease;
+        }
+        .card.animate {
+            transform: translateY(-20px);
+        }
+        .buttons button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #2980B9;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        .buttons button.active {
+            pointer-events: auto;
+        }
+        .scoreboard {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blackjack</h1>
+    <div class="scoreboard">
+        <div id="player-wins">Player Wins: 0</div>
+        <div id="dealer-wins">Dealer Wins: 0</div>
+    </div>
+    <div class="game-container">
+        <h2>Player's Hand: <span id="player-score-display">0</span></h2>
+        <div id="player-hand" class="hand"></div>
+        <h2>Dealer's Hand: <span id="dealer-score-display">0</span></h2>
+        <div id="dealer-hand" class="hand"></div>
+        <div class="buttons">
+            <button id="hit-button" onclick="hit()">Hit</button>
+            <button id="stand-button" onclick="stand()">Stand</button>
+        </div>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const suits = ['♥', '♦', '♣', '♠'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        let playerHand = [];
+        let dealerHand = [];
+        let playerWins = 0;
+        let dealerWins = 0;
+        let isGameOver = false;
+
+        function getRandomCard() {
+            const value = values[Math.floor(Math.random() * values.length)];
+            const suit = suits[Math.floor(Math.random() * suits.length)];
+            return { value, suit };
+        }
+
+        function calculateScore(hand) {
+            let score = 0;
+            let aces = 0;
+            for (let card of hand) {
+                if (['J', 'Q', 'K'].includes(card.value)) {
+                    score += 10;
+                } else if (card.value === 'A') {
+                    aces += 1;
+                    score += 11;
+                } else {
+                    score += parseInt(card.value);
+                }
+            }
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            return score;
+        }
+
+        function updateScores() {
+            const playerScore = calculateScore(playerHand);
+            const dealerScore = calculateScore(dealerHand);
+            document.getElementById('player-score-display').innerText = playerScore;
+            document.getElementById('dealer-score-display').innerText = dealerScore;
+        }
+
+        function updateWinCount() {
+            document.getElementById('player-wins').innerText = `Player Wins: ${playerWins}`;
+            document.getElementById('dealer-wins').innerText = `Dealer Wins: ${dealerWins}`;
+        }
+
+        function createCardElement(card) {
+            const cardDiv = document.createElement('div');
+            cardDiv.classList.add('card', 'animate');
+            cardDiv.textContent = `${card.value}${card.suit}`;
+            return cardDiv;
+        }
+
+        function disableButtons() {
+            document.getElementById('hit-button').classList.remove('active');
+            document.getElementById('stand-button').classList.remove('active');
+        }
+
+        function enableButtons() {
+            document.getElementById('hit-button').classList.add('active');
+            document.getElementById('stand-button').classList.add('active');
+        }
+
+        function dealCard(hand, containerId) {
+            disableButtons();
+            const card = getRandomCard();
+            hand.push(card);
+            const handContainer = document.getElementById(containerId);
+            const cardElement = createCardElement(card);
+            handContainer.appendChild(cardElement);
+            updateScores();
+            setTimeout(() => {
+                cardElement.classList.remove('animate');
+                enableButtons();
+            }, 3000);
+        }
+
+        function hit() {
+            if (isGameOver) return;
+            dealCard(playerHand, 'player-hand');
+            if (calculateScore(playerHand) > 21) {
+                setTimeout(() => endGame('Player busts! Dealer wins!'), 3000);
+            }
+        }
+
+        function stand() {
+            if (isGameOver) return;
+            disableButtons();
+            while (calculateScore(dealerHand) < 17) {
+                dealCard(dealerHand, 'dealer-hand');
+            }
+            setTimeout(() => {
+                const playerScore = calculateScore(playerHand);
+                const dealerScore = calculateScore(dealerHand);
+                if (dealerScore > 21) {
+                    endGame('Dealer busts! Player wins!');
+                } else if (playerScore > dealerScore) {
+                    endGame('Player wins!');
+                } else if (playerScore < dealerScore) {
+                    endGame('Dealer wins!');
+                } else {
+                    endGame('It\'s a tie!');
+                }
+            }, 3000);
+        }
+
+        function endGame(message) {
+            isGameOver = true;
+            document.getElementById('result').innerText = message;
+            if (message.includes('Player wins')) {
+                playerWins++;
+            } else if (message.includes('Dealer wins')) {
+                dealerWins++;
+            }
+            updateWinCount();
+            setTimeout(resetGame, 3000); // Automatically start a new hand after 3 seconds
+        }
+
+        function resetGame() {
+            playerHand = [];
+            dealerHand = [];
+            isGameOver = false;
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('dealer-hand').innerHTML = '';
+            document.getElementById('result').innerText = '';
+            updateScores();
+            initializeGame();
+        }
+
+        function initializeGame() {
+            enableButtons();
+            dealCard(playerHand, 'player-hand');
+            dealCard(playerHand, 'player-hand');
+            dealCard(dealerHand, 'dealer-hand');
+            updateScores();
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>
